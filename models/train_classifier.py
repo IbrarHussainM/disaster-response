@@ -19,6 +19,16 @@ from sklearn.multioutput import MultiOutputClassifier
 import pickle
 
 def load_data(database_filepath):
+    
+    """
+    read data from a database into pandas dataframe. Split data into predictor (X) and
+    response(y)
+    :param database_filepath: filepath for source database
+    :return:
+        X - pandas dataframe (predictor)
+        y - pandas dataframe ( response)
+    """
+    
     engine = create_engine('sqlite:///'+database_filepath)
     df = pd.read_sql_table('DisasterResponse', engine)
     X = df.message
@@ -27,6 +37,13 @@ def load_data(database_filepath):
     return X, y, category_names 
 
 def tokenize(text):
+    
+    """
+    Tokenize text by removing stop words, lemmatization, normalization
+    :param text: str or unicode input text to tokenize
+    :return: tokens : list of tokenized words
+    """
+    
     url_regex = 'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
     detected_urls = re.findall(url_regex, text)
     for url in detected_urls:
@@ -43,6 +60,12 @@ def tokenize(text):
     return clean_tokens    
 
 def build_model():
+    
+    """
+    build model using GridSearchCV
+    :return: cv - GridSearchCV object
+    """
+    
     pipeline = Pipeline([
         ('vect', CountVectorizer(tokenizer=tokenize)),
         ('tfidf', TfidfTransformer()),
@@ -58,11 +81,30 @@ def build_model():
     return model
 
 def evaluate_model(model, X_test, y_test, category_names):
+    
+    """
+    Predict on test data. Report f1 score, preiction and recall for each output category of the dataset.
+    response has multiple output classes
+    :param model: trained model
+    :param x_test:pandas dataframe. predictor test data for model testing.
+    :param y_test:pandas dataframe. true labels for test data
+    :param category_names: category names for y_test
+    :return:None
+    """
+    
     y_pred = model.predict(X_test)
     class_report = classification_report(y_test, y_pred, target_names=category_names)
     print(class_report)
 
 def save_model(model, model_filepath):
+    
+    """
+    Dumps trained model to model_filepath
+    :param model: trained model
+    :param model_filepath: filepath to save trained model
+    :return: None
+    """
+    
     with open(model_filepath, 'wb') as file:
         pickle.dump(model, file)
 
