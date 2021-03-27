@@ -5,6 +5,15 @@ import pandas as pd
 from sqlalchemy import create_engine
 
 def load_data(messages_filepath, categories_filepath):
+    
+    """
+    read messages and categories files into a pandas dataframe.
+    Merge the two data frames.
+    :param messages_filepath:
+    :param categories_filepath:
+    :return: df  pandas dataframe
+    """
+    
     # load dataset
     categories = pd.read_csv(categories_filepath)
     messages = pd.read_csv(messages_filepath)
@@ -32,12 +41,27 @@ def load_data(messages_filepath, categories_filepath):
     return df
 
 def clean_data(df):
+    
+    """
+    clean dataframe and return it.
+    :param df: rpandas dataframe
+    :return: df pandas dataframe
+    """
+    
     # drop duplicates
     df = df.drop_duplicates()
     return df
     
 
 def save_data(df, database_filename):
+    
+    """
+    save pandas dataframe to sqlite Database.
+    :param df:
+    :param database_filename:
+    :return: None
+    """
+    
     engine = create_engine('sqlite:///'+database_filename)
     df.to_sql('DisasterResponse', engine,if_exists = 'replace', index=False)  
 
